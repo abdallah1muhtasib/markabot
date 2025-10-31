@@ -1,103 +1,36 @@
-/*
- * Root build file for the Marka Bot project. This project uses a multi‑module layout
- * to separate concerns between the core business logic, Discord gateway integration,
- * infrastructure components (database, caching, schedulers), and the bootstrap layer.
- *
- * The subprojects share common configuration (Java 17 and repositories) while
- * defining their own dependencies. To build the bot run `./gradlew build`. The
- * resulting artefacts will be located under the `build/` directories of each
- * submodule.
- */
-
 plugins {
     id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
-group = 'com.markabot'
-version = '0.1.0-SNAPSHOT'
-
-subprojects {
-    apply plugin: 'java'
-
-    // Use Java 17 for all modules
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-
-    repositories {
-        mavenCentral()
-        // Additional repositories (e.g. JitPack) can be added here if needed
-    }
+repositories {
+    mavenCentral()
 }
 
-project(':app-core') {
-    dependencies {
-        // Guava provides caching utilities used throughout the core
-        implementation 'com.google.guava:guava:32.1.2-jre'
+dependencies {
+    // أمثلة — أبقِ ما تحتاجه فقط
+    implementation 'net.dv8tion:JDA:5.0.0-beta.20'
+    implementation 'org.slf4j:slf4j-simple:2.0.13'
+}
 
-        // JUnit for unit testing
-        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
-        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
-    }
-    test {
-        useJUnitPlatform()
+application {
+    // غيّرها إلى نقطة الدخول الفعلية في مشروعك
+    mainClass = 'com.markabot.BotBootstrap'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
-project(':infra') {
-    dependencies {
-        implementation project(':app-core')
-
-        // Connection pooling for JDBC
-        implementation 'com.zaxxer:HikariCP:5.0.1'
-        // PostgreSQL driver; replace with `org.xerial:sqlite-jdbc` if using SQLite
-        implementation 'org.postgresql:postgresql:42.6.0'
-
-        // Logging abstraction and implementation
-        implementation 'org.slf4j:slf4j-api:2.0.7'
-        implementation 'ch.qos.logback:logback-classic:1.4.11'
-
-        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
-        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
-    }
-    test {
-        useJUnitPlatform()
-    }
+tasks.named('shadowJar') {
+    archiveBaseName.set('markabot')
+    archiveClassifier.set('all')
+    archiveVersion.set('')
 }
 
-project(':discord-adapter') {
-    dependencies {
-        implementation project(':app-core')
-        implementation project(':infra')
-
-        // JDA for interacting with the Discord Gateway using slash commands and interactions.
-        implementation 'net.dv8tion:JDA:5.0.0-beta.12'
-
-        // LavaPlayer for music playback. Keeping the version explicit for reproducibility.
-        implementation 'com.sedmelluq:lavaplayer:1.3.78'
-
-        // Additional utilities
-        implementation 'com.squareup.okio:okio:3.5.0'
-
-        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
-        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
-    }
-    test {
-        useJUnitPlatform()
-    }
-}
-
-project(':bootstrap') {
-    // The bootstrap module defines the entrypoint for the application
-    apply plugin: 'application'
-
-    dependencies {
-        implementation project(':discord-adapter')
-    }
-
-    // The fully qualified name of the main class used by `java -jar`
-    mainClassName = 'com.markabot.BotBootstrap'
-
-    test {
-        useJUnitPlatform()
-    }
+tasks.build {
+    dependsOn tasks.shadowJar
 }
