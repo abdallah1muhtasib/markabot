@@ -29,17 +29,15 @@ public class BotBootstrap {
         System.out.println("✅ MarkaBot is now online!");
 
         // 3) قراءة LOG_CHANNEL_ID وإرسال رسالة تأكيد
-        String logChannelId = System.getenv("LOG_CHANNEL_ID");
-        if (logChannelId != null && !logChannelId.isEmpty()) {
-            TextChannel logChannel = jda.getTextChannelById(logChannelId);
-            if (logChannel != null) {
-                logChannel.sendMessage("✅ **MarkaBot** بدأ العمل الآن!").queue();
-            } else {
-                System.out.println("⚠️ LOG_CHANNEL_ID غير صحيح أو القناة غير موجودة.");
-            }
-        } else {
-            System.out.println("ℹ️ لم يتم ضبط LOG_CHANNEL_ID؛ لن يتم إرسال رسائل اللوق.");
-        }
+        // قناة اللوق المباشرة
+String logChannelId = "1433859021563101405";
+TextChannel logChannel = jda.getTextChannelById(logChannelId);
+
+if (logChannel != null) {
+    logChannel.sendMessage("✅ **MarkaBot** بدأ العمل الآن!").queue();
+} else {
+    System.out.println("⚠️ لم يتم العثور على قناة اللوق (تحقق من الـ ID أو صلاحيات البوت).");
+}
 
         // مثال بسيط: تقدر ترسل لوقاتك بهذا الشكل لاحقًا:
         // log("تم تسجيل حدث X", jda);
