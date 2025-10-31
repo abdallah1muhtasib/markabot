@@ -9,13 +9,14 @@ repositories {
 }
 
 dependencies {
-    // أمثلة — أبقِ ما تحتاجه فقط
+    // مكتبة JDA لتشغيل بوت ديسكورد
     implementation 'net.dv8tion:JDA:5.0.0-beta.20'
+    // مكتبة تسجيل الأخطاء والرسائل
     implementation 'org.slf4j:slf4j-simple:2.0.13'
 }
 
 application {
-    // غيّرها إلى نقطة الدخول الفعلية في مشروعك
+    // كلاس التشغيل الرئيسي للبوت
     mainClass = 'com.markabot.BotBootstrap'
 }
 
@@ -25,12 +26,24 @@ java {
     }
 }
 
+/* اجعل الجَر يحتوي Main-Class */
+tasks.withType(Jar).configureEach {
+    manifest {
+        attributes 'Main-Class': application.mainClass.get()
+    }
+}
+
+/* إعداد shadowJar (يُخرج ملف jar كامل) */
 tasks.named('shadowJar') {
     archiveBaseName.set('markabot')
     archiveClassifier.set('all')
     archiveVersion.set('')
+    manifest {
+        attributes 'Main-Class': application.mainClass.get()
+    }
 }
 
+/* build يعتمد على shadowJar */
 tasks.build {
     dependsOn tasks.shadowJar
 }
