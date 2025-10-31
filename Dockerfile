@@ -2,18 +2,15 @@
 FROM gradle:8.5.0-jdk17 AS builder
 
 WORKDIR /home/gradle/src
-# انسخ كل السورس (المشروع multi-module)
 COPY . .
 
-# شغّل Gradle Wrapper إن كان موجودًا، وإلا استخدم gradle من الصورة
-# نلغي الاختبارات لتسريع البناء الأول
+# ميموري آمن للبناء على Railway + بناء wrapper قبل البناء الفعلي
+ENV GRADLE_OPTS="-Dorg.gradle.jvmargs=-Xmx1024m -Dfile.encoding=UTF-8"
+
 RUN set -eux; \
-    if [ -f "./gradlew" ]; then \
-        chmod +x ./gradlew; \
-        ./gradlew --no-daemon clean build -x test; \
-    else \
-        gradle --no-daemon clean build -x test; \
-    fi
+    gradle --no-daemon wrapper --gradle-version 8.5; \
+    chmod +x ./gradlew; \
+    ./gradlew --no-daemon clean build -x test --stacktrace --warning-mode all
 
 # ====== Stage 2: Runtime (JRE خفيفة) ======
 FROM eclipse-temurin:17-jre
