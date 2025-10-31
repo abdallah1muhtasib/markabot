@@ -1,45 +1,28 @@
-##
-# Multi-stage Dockerfile for Marka Bot. The first stage builds the project using
-# Gradle, and the second stage creates a minimal image containing only the
-# compiled application and a JRE. To reduce attack surface, a slim base image is
-# used for the runtime.
-#
-# Usage:
-#
-#  docker build -t markabot .
-#  docker run -e BOT_TOKEN=... -e DB_URL=... -e DB_USERNAME=... -e DB_PASSWORD=... markabot
-##
+# ===== Stage 1: Build with Gradle =====
+# استخدم صورة Gradle ثابتة مع JDK17
+FROM gradle:8.5.0-jdk17 AS builder
 
-### Build stage
-FROM gradle:8.3-jdk17 AS builder
-WORKDIR /home/gradle/project
-
-# Copy only the Gradle wrapper and build files first to leverage Docker cache
-COPY build.gradle settings.gradle ./
-COPY app-core/build.gradle app-core/
-COPY infra/build.gradle infra/
-COPY discord-adapter/build.gradle discord-adapter/
-COPY bootstrap/build.gradle bootstrap/
-
-# Copy the rest of the sources
+# ضع كل السورس داخل الحاوية
+WORKDIR /home/gradle/src
 COPY . .
 
-# Build the distribution for the bootstrap module. Tests are skipped for faster builds.
-RUN gradle :bootstrap:installDist -x test --no-daemon
+# نفّذ البناء (بدون اختبارات لتسريع أول نشر)
+RUN gradle --no-daemon clean build -x test
 
-### Runtime stage
-FROM eclipse-temurin:17-jre as runtime
+# ===== Stage 2: Runtime (JRE only) =====
+# استخدم JRE خفيفة ومستقرة
+FROM eclipse-temurin:17-jre
+
+# متغيرات اختيارية لتخصيص JVM
+ENV JAVA_OPTS=""
+
+# مجلد تشغيل التطبيق
 WORKDIR /app
 
-# Copy the distribution from the builder stage
-COPY --from=builder /home/gradle/project/bootstrap/build/install/bootstrap/ .
+# انسخ الـ JAR النهائي من مرحلة البناء
+# ملاحظة: ننسخ JAR الناتج من وحدة bootstrap (التي تحتوي الـmain)
+COPY --from=builder /home/gradle/src/bootstrap/build/libs/*.jar /app/markabot.jar
 
-# Set the entrypoint. The bash wrapper from installDist sets classpath correctly.
-ENTRYPOINT ["./bin/bootstrap"]
+# شغّل التطبيق
+ENTRYPOINT ["sh","-c","java $JAVA_OPTS -jar /app/markabot.jar"]
 
-# The following environment variables must be provided at runtime:
-# - BOT_TOKEN
-# - DB_URL
-# - DB_USERNAME
-# - DB_PASSWORD
-# - BOT_VERSION (optional)
