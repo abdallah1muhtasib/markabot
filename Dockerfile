@@ -18,8 +18,8 @@ FROM eclipse-temurin:17-jre
 ENV JAVA_OPTS=""
 WORKDIR /app
 
-# انسخ الـ JAR الناتج من وحدة bootstrap (التي تحتوي على main)
-COPY --from=builder /home/gradle/src/build/libs/*.jar /app/markabot.jar
+# نسخ ملف ال Shadow Jar الناتج
+COPY --from=builder /home/gradle/src/build/libs/*-all.jar /app/markabot.jar
 
-# شغّل التطبيق
+# تشغيل التطبيق
 ENTRYPOINT ["sh","-c","java $JAVA_OPTS -jar /app/markabot.jar"]
