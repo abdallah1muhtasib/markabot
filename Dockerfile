@@ -1,13 +1,15 @@
 # ===== Stage 1: Build with Gradle =====
-# استخدم صورة Gradle ثابتة مع JDK17
 FROM gradle:8.5.0-jdk17 AS builder
 
-# ضع كل السورس داخل الحاوية
 WORKDIR /home/gradle/src
 COPY . .
 
-# نفّذ البناء (بدون اختبارات لتسريع أول نشر)
-RUN gradle --no-daemon clean build -x test
+# انسخ gradlew والملف gradle-wrapper.properties لتشغيل Gradle wrapper
+COPY gradlew ./
+COPY gradle gradle
+
+RUN chmod +x gradlew
+RUN ./gradlew --no-daemon clean build -x test
 
 # ===== Stage 2: Runtime (JRE only) =====
 # استخدم JRE خفيفة ومستقرة
