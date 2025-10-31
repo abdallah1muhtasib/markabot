@@ -1,0 +1,19 @@
+[Unit]
+Description=Marka Bot Discord Service
+After=network.target
+
+[Service]
+Type=simple
+User=markabot
+WorkingDirectory=/opt/markabot
+# Replace placeholders with actual environment variables or create an EnvironmentFile
+Environment=BOT_TOKEN=YOUR_BOT_TOKEN_HERE
+Environment=BOT_VERSION=0.1.0
+Environment=DB_URL=jdbc:postgresql://localhost:5432/markabot
+Environment=DB_USERNAME=markabot
+Environment=DB_PASSWORD=secret
+ExecStart=/usr/bin/java -jar /opt/markabot/bootstrap/build/libs/bootstrap-0.1.0-SNAPSHOT.jar
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

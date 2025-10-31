@@ -1,0 +1,3 @@
+rootProject.name = "marka-bot"
+
+include "app-core", "infra", "discord-adapter", "bootstrap"

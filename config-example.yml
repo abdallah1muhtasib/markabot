@@ -1,0 +1,18 @@
+# مثال على إعدادات خادم لإستيرادها عبر أمر `/config import`.
+# يمكن تخصيص كل قيمة حسب الحاجة.
+
+guild_id: "123456789012345678"
+welcome_channel_id: "123456789012345678"
+log_channel_id: "1433745039921643611"
+dj_role_id: "987654321098765432"
+features:
+  auto_moderation: true
+  logging: true
+  music: true
+  leveling: true
+level_rewards:
+  5: "roleIdForLevel5"
+  10: "roleIdForLevel10"
+economy:
+  daily_bonus: 100
+  rep_cooldown_hours: 24

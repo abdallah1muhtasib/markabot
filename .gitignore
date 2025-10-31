@@ -1,0 +1,26 @@
+# Build outputs
+build/
+*/build/
+
+# Gradle wrapper
+.gradle/
+gradle-app.setting
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# OS files
+*.DS_Store
+
+# Env files
+.env
+!config-example.env
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+out/
