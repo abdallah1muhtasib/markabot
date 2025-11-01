@@ -9,31 +9,29 @@ repositories {
 }
 
 dependencies {
-    // مكتبة JDA لتشغيل بوت ديسكورد
-    implementation 'net.dv8tion:JDA:5.0.0-beta.20'
-    // مكتبة تسجيل الأخطاء والرسائل
+    implementation 'net.dv8tion:JDA:5.0.0'
     implementation 'org.slf4j:slf4j-simple:2.0.13'
 }
 
 application {
-    // كلاس التشغيل الرئيسي للبوت
     mainClass = 'com.markabot.BotBootstrap'
 }
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
-/* اجعل الجَر يحتوي Main-Class */
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
 tasks.withType(Jar).configureEach {
     manifest {
         attributes 'Main-Class': application.mainClass.get()
     }
 }
 
-/* إعداد shadowJar (يُخرج ملف jar كامل) */
 tasks.named('shadowJar') {
     archiveBaseName.set('markabot')
     archiveClassifier.set('all')
@@ -43,7 +41,6 @@ tasks.named('shadowJar') {
     }
 }
 
-/* build يعتمد على shadowJar */
 tasks.build {
     dependsOn tasks.shadowJar
 }
